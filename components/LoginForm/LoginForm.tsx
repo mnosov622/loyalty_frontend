@@ -57,6 +57,7 @@ const LoginForm = () => {
 		}
 
 		if (data.statusCode === 200) {
+			localStorage.setItem('token', data.token);
 			router.push('/');
 			setLoading(false);
 			return;
