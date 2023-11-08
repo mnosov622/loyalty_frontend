@@ -1,10 +1,10 @@
-// Import necessary dependencies and components
 import { FormEvent, useState } from 'react';
 import Button from '../Button/Button';
 import { useRouter } from 'next/navigation';
 import Input from '../Input/Input';
 import CircleLoader from '../Loader/Loader';
 import Link from 'next/link';
+import bcrypt from 'bcrypt';
 
 const Page = () => {
 	const [email, setEmail] = useState('');
@@ -28,7 +28,8 @@ const Page = () => {
 		}
 		try {
 			setLoading(true);
-			const userRoles = [1];
+			const userRoles = ['user'];
+			const username = email.split('@')[0];
 			const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/auth/signup`, {
 				method: 'POST',
 				headers: {
@@ -40,14 +41,10 @@ const Page = () => {
 					firstName,
 					lastName,
 					roles: userRoles,
+					username,
 				}),
 			});
 			const data = await res.json();
-			if (data.message) {
-				setError(data.message[0].messages[0].message);
-				setLoading(false);
-				return;
-			}
 
 			if (data.status === 409) {
 				setError('User already exists');
@@ -55,9 +52,9 @@ const Page = () => {
 				return;
 			}
 
-			router.push('/login');
+			// router.push('/login');
 		} catch (err) {
-			setError('error');
+			setError('Error occured');
 		} finally {
 			setLoading(false);
 		}
