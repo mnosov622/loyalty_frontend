@@ -3,14 +3,14 @@ import { baseStyles, variantStyles } from './Button.styles';
 
 interface ButtonProps {
 	children: React.ReactNode;
-	props?: React.ButtonHTMLAttributes<HTMLButtonElement>;
+	buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 }
 
-const Button = ({ children, props }: ButtonProps) => {
+const Button = ({ children, buttonProps }: ButtonProps) => {
 	return (
 		<button
-			className={variantStyles.primary + ' ' + baseStyles}
-			{...props}
+			className={`${variantStyles.primary} ${baseStyles}`}
+			{...buttonProps}
 		>
 			{children}
 		</button>
