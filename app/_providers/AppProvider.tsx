@@ -13,7 +13,6 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
 	const [authData, setAuthData] = useState<JwtPayload | null>(null);
 	const router = useRouter();
-	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const checkToken = () => {
@@ -26,9 +25,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 				}
 				setAuthData(decoded);
 			} else {
-				router.push('/login');
 			}
-			setLoading(false);
 		};
 
 		checkToken();
