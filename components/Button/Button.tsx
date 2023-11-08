@@ -7,10 +7,11 @@ interface ButtonProps {
 }
 
 const Button = ({ children, buttonProps }: ButtonProps) => {
+	const { className, ...rest } = buttonProps || {};
 	return (
 		<button
-			className={`${variantStyles.primary} ${baseStyles}`}
-			{...buttonProps}
+			className={`${variantStyles.primary} ${baseStyles} ${className}`}
+			{...rest}
 		>
 			{children}
 		</button>

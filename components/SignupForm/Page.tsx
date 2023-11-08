@@ -3,19 +3,22 @@ import { FormEvent, useState } from 'react';
 import Button from '../Button/Button';
 import { useRouter } from 'next/navigation';
 import Input from '../Input/Input';
+import CircleLoader from '../Loader/Loader';
+import Link from 'next/link';
 
 const Page = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
-	const [firstName, setFirstname] = useState(''); // New state for firstname
-	const [lastName, setLastname] = useState(''); // New state for lastname
+	const [firstName, setFirstname] = useState('');
+	const [lastName, setLastname] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
 
 	const router = useRouter();
 
 	const handleSubmit = async (e: FormEvent) => {
+		setError('');
 		e.preventDefault();
 		setLoading(true);
 		if (password !== confirmPassword) {
@@ -24,6 +27,8 @@ const Page = () => {
 			return;
 		}
 		try {
+			setLoading(true);
+			const userRoles = [1];
 			const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/auth/signup`, {
 				method: 'POST',
 				headers: {
@@ -34,6 +39,7 @@ const Page = () => {
 					password,
 					firstName,
 					lastName,
+					roles: userRoles,
 				}),
 			});
 			const data = await res.json();
@@ -42,10 +48,17 @@ const Page = () => {
 				setLoading(false);
 				return;
 			}
-			setLoading(false);
-			// router.push('/login');
+
+			if (data.status === 409) {
+				setError('User already exists');
+				setLoading(false);
+				return;
+			}
+
+			router.push('/login');
 		} catch (err) {
-			console.log('err');
+			setError('error');
+		} finally {
 			setLoading(false);
 		}
 	};
@@ -154,6 +167,7 @@ const Page = () => {
 					/>
 				</div>
 			</div>
+			{error && <p className="text-red-500">{error}</p>}
 			<div className="flex items-center justify-between">
 				<a
 					href="#"
@@ -167,9 +181,10 @@ const Page = () => {
 					buttonProps={{
 						type: 'submit',
 						disabled: loading,
+						className: 'w-full',
 					}}
 				>
-					Sign up
+					{loading ? <CircleLoader /> : 'Sign up'}
 				</Button>
 			</div>
 		</form>
