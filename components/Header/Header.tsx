@@ -1,6 +1,9 @@
+import { useAuth } from '@/app/_providers/AppProvider';
 import React from 'react';
 
 const Header = () => {
+	const authData = useAuth();
+	console.log('data', authData);
 	return (
 		<header className="flex justify-between items-center p-6">
 			<img
@@ -29,6 +32,15 @@ const Header = () => {
 					Menu Item 3
 				</a>
 			</nav>
+
+			{authData && (
+				<button
+					// onClick={logout}
+					className="text-black no-underline"
+				>
+					Logout
+				</button>
+			)}
 
 			<img
 				src="/path/to/profile.jpg"

@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 const HomePage = () => {
 	const authData = useAuth();
 	const router = useRouter();
-	if (!authData) router.push('/login');
 
 	return (
 		<AppLayout>
