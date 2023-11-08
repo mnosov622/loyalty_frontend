@@ -1,9 +1,14 @@
-import { useAuth } from '@/app/_providers/AppProvider';
+'use client';
 import React from 'react';
-
+import { useRouter } from 'next/navigation';
+import Button from '../Button/Button';
 const Header = () => {
-	const authData = useAuth();
-	console.log('data', authData);
+	const router = useRouter();
+	const logout = () => {
+		localStorage.removeItem('token');
+		router.push('/login');
+	};
+
 	return (
 		<header className="flex justify-between items-center p-6">
 			<img
@@ -12,35 +17,12 @@ const Header = () => {
 				className="h-12"
 			/>
 
-			<nav className="space-x-4">
-				<a
-					href="/path1"
-					className="text-black no-underline"
-				>
-					Menu Item 1
-				</a>
-				<a
-					href="/path2"
-					className="text-black no-underline"
-				>
-					Menu Item 2
-				</a>
-				<a
-					href="/path3"
-					className="text-black no-underline"
-				>
-					Menu Item 3
-				</a>
-			</nav>
-
-			{authData && (
-				<button
-					// onClick={logout}
-					className="text-black no-underline"
-				>
-					Logout
-				</button>
-			)}
+			<Button
+				buttonProps={{ className: 'ml-auto mr-5' }}
+				onClick={logout}
+			>
+				Logout
+			</Button>
 
 			<img
 				src="/path/to/profile.jpg"

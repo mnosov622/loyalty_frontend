@@ -1,14 +1,8 @@
-'use client';
-
 import React, { useEffect } from 'react';
-import { useAuth } from './_providers/AppProvider';
 import AppLayout from './AppLayout';
-import { useRouter } from 'next/navigation';
+import { useAuth } from './_providers/AppProvider';
 
 const HomePage = () => {
-	const authData = useAuth();
-	const router = useRouter();
-
 	return (
 		<AppLayout>
 			<div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

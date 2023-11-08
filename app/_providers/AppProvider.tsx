@@ -13,6 +13,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
 	const [authData, setAuthData] = useState<JwtPayload | null>(null);
 	const router = useRouter();
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const checkToken = () => {
@@ -20,10 +21,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
 			if (token) {
 				const decoded = jwtDecode(token);
+				if (decoded.exp && decoded?.exp * 1000 < Date.now()) {
+					logout();
+				}
 				setAuthData(decoded);
 			} else {
 				router.push('/login');
 			}
+			setLoading(false);
 		};
 
 		checkToken();
@@ -34,6 +39,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 			window.removeEventListener('storage', checkToken);
 		};
 	}, []);
+
+	const logout = () => {
+		localStorage.removeItem('token');
+		router.push('/login');
+	};
 
 	return <AuthContext.Provider value={authData}>{children}</AuthContext.Provider>;
 };

@@ -29,6 +29,17 @@ const Page = () => {
 							</a>
 						</span>
 					</div>
+					<div className="mt-6 flex justify-center text-sm text-center text-gray-500">
+						<span>
+							Already have an account?{' '}
+							<a
+								href="/login"
+								className="text-indigo-600 hover:text-indigo-500"
+							>
+								Log in
+							</a>
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
