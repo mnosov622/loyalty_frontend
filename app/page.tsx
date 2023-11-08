@@ -2,29 +2,34 @@
 
 import React, { useEffect } from 'react';
 import { useAuth } from './_providers/AppProvider';
+import AppLayout from './AppLayout';
+import { useRouter } from 'next/navigation';
 
 const HomePage = () => {
 	const authData = useAuth();
-	console.log('auth', authData);
+	const router = useRouter();
+	if (!authData) router.push('/login');
 
 	return (
-		<div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-			<div className="max-w-md w-full space-y-8 shadow-lg p-6 rounded bg-white">
-				<div>
-					<h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-						Welcome to our Loyalty App
-					</h2>
-				</div>
-				<div className="flex flex-col items-center">
-					<p className="text-center text-gray-600">
-						Earn points for every purchase and get exclusive rewards!
-					</p>
-					<button className="mt-6 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-						Start earning points
-					</button>
+		<AppLayout>
+			<div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+				<div className="max-w-md w-full space-y-8 shadow-lg p-6 rounded bg-white">
+					<div>
+						<h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+							Welcome to our Loyalty App
+						</h2>
+					</div>
+					<div className="flex flex-col items-center">
+						<p className="text-center text-gray-600">
+							Earn points for every purchase and get exclusive rewards!
+						</p>
+						<button className="mt-6 group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+							Start earning points
+						</button>
+					</div>
 				</div>
 			</div>
-		</div>
+		</AppLayout>
 	);
 };
 
