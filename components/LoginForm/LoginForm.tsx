@@ -63,7 +63,7 @@ const LoginForm = () => {
 		if (data.statusCode === 200) {
 			console.log('data', data);
 			localStorage.setItem('token', data.token);
-
+			// document.cookie = `token=${data.token}; expires=${new Date(data.expires).toUTCString()};`;
 			// ).toUTCString()};`;
 			router.push('/');
 			setLoading(false);

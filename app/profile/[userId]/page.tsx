@@ -1,6 +1,11 @@
 const Page = async ({ params }: any) => {
 	const userData = await fetch(`http://localhost:5000/users/${params.userId}`, {
-		cache: 'no-store',
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+
+		credentials: 'include',
 	})
 		.then((res) => res.json())
 		.catch((err) => console.error(err));
@@ -8,9 +13,9 @@ const Page = async ({ params }: any) => {
 	return (
 		<div>
 			<h1>
-				{userData?.firstName} {userData?.lastName}
+				{userData?.data?.firstName} {userData?.data?.lastName}
 			</h1>
-			<p>{userData?.email}</p>
+			<p>{userData?.data?.email}</p>
 		</div>
 	);
 };

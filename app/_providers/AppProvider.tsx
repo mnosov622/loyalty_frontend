@@ -69,10 +69,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		};
 	}, [isLoggedIn]);
 
-	// if (!authData) {
-	// 	return null;
-	// }
-
 	return (
 		<AuthContext.Provider value={{ ...authData, login, logout }}>{children}</AuthContext.Provider>
 	);

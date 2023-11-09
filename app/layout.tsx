@@ -16,6 +16,20 @@ export const metadata: Metadata = {
 // get user session from database, if token exists in sessions table, proceed, else redirect to login
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+	// fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/sessions`, {
+	// 	method: 'POST',
+	// 	headers: {
+	// 		'Content-Type': 'application/json',
+	// 	},
+	// 	credentials: 'include',
+	// })
+	// 	.then((res) => res.json())
+	// 	.then((data) => {
+	// 		console.log(data.statusCode);
+	// 		if (data.statusCode === 401) {
+	// 		}
+	// 	});
+
 	return (
 		<html lang="en">
 			<body className={inter.className}>
