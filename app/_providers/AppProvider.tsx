@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { JwtPayload, jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 
@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 	const [authData, setAuthData] = useState<JwtPayload | null>(null);
 	const router = useRouter();
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const checkToken = () => {
 			const token = localStorage.getItem('token');
 
