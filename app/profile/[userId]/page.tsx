@@ -1,5 +1,7 @@
 const Page = async ({ params }: any) => {
-	const userData = await fetch(`http://localhost:5000/users/${params.userId}`)
+	const userData = await fetch(`http://localhost:5000/users/${params.userId}`, {
+		cache: 'no-store',
+	})
 		.then((res) => res.json())
 		.catch((err) => console.error(err));
 

@@ -24,14 +24,14 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-	const [authData, setAuthData] = useState<JwtPayload | null>(null);
+	const [authData, setAuthData] = useState<JwtPayload | undefined>(undefined);
 	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const router = useRouter();
 
 	const logout = () => {
+		router.push('/login');
 		setIsLoggedIn(false);
 		localStorage.removeItem('token');
-		router.push('/login');
 	};
 
 	const login = () => {
@@ -46,20 +46,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 				const decoded = jwtDecode<JwtPayload>(token);
 				if (decoded.exp && decoded.exp * 1000 < Date.now()) {
 					logout();
+				} else {
+					setAuthData(decoded);
 				}
-				console.log('check token', decoded);
-				setAuthData(decoded);
+			} else {
+				logout();
 			}
 		};
 
-		if (isLoggedIn) {
-			checkToken();
-		}
+		const storageListener = (event: StorageEvent) => {
+			if (event.key === 'token') {
+				checkToken();
+			}
+		};
+
+		window.addEventListener('storage', storageListener);
+
+		checkToken();
+
+		return () => {
+			window.removeEventListener('storage', storageListener);
+		};
 	}, [isLoggedIn]);
 
-	if (!authData) {
-		return null;
-	}
+	// if (!authData) {
+	// 	return null;
+	// }
 
 	return (
 		<AuthContext.Provider value={{ ...authData, login, logout }}>{children}</AuthContext.Provider>

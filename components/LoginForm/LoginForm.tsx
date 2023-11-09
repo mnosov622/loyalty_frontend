@@ -17,9 +17,7 @@ const LoginForm = () => {
 
 	const router = useRouter();
 	const authData = useAuth();
-	if (!authData) {
-		return null;
-	}
+
 	const { login } = authData;
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -63,7 +61,10 @@ const LoginForm = () => {
 		}
 
 		if (data.statusCode === 200) {
+			console.log('data', data);
 			localStorage.setItem('token', data.token);
+
+			// ).toUTCString()};`;
 			router.push('/');
 			setLoading(false);
 			login();

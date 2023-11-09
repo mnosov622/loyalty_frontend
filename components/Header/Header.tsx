@@ -10,7 +10,7 @@ import Link from 'next/link';
 const Header = () => {
 	const authData = useAuth();
 	if (!authData) {
-		return null;
+		return;
 	}
 	const { logout } = authData;
 
