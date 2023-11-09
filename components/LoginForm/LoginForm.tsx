@@ -6,6 +6,7 @@ import Link from 'next/link';
 import CircleLoader from '../Loader/Loader';
 import { useRouter } from 'next/navigation';
 import Input from '../Input/Input';
+import { useAuth } from '@/app/_providers/AppProvider';
 
 const LoginForm = () => {
 	const [email, setEmail] = useState('');
@@ -15,6 +16,11 @@ const LoginForm = () => {
 	const [error, setError] = useState('');
 
 	const router = useRouter();
+	const authData = useAuth();
+	if (!authData) {
+		return null;
+	}
+	const { login } = authData;
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		setError('');
@@ -60,6 +66,7 @@ const LoginForm = () => {
 			localStorage.setItem('token', data.token);
 			router.push('/');
 			setLoading(false);
+			login();
 			return;
 		}
 	};
@@ -152,7 +159,7 @@ const LoginForm = () => {
 
 			<div className="mt-6">
 				<p className="text-center">
-					Don't have an account?{' '}
+					Don&apos;t have an account?
 					<Link
 						className="font-medium text-indigo-600 hover:text-indigo-500"
 						href="/signup"

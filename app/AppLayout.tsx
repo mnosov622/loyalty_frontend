@@ -29,7 +29,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<>
 			<Header />
-			{children}
+			<div className="w-[95%] p-2 mx-auto">{children}</div>
 		</>
 	);
 }

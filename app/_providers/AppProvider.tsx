@@ -1,10 +1,23 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { JwtPayload, jwtDecode } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-const AuthContext = createContext<JwtPayload | null>(null);
+interface JwtPayload {
+	userId: string;
+	iat: number;
+	exp: number;
+	email: string;
+}
+
+interface AuthContextData extends JwtPayload {
+	login: () => void;
+	logout: () => void;
+	userId: string;
+}
+
+const AuthContext = createContext<AuthContextData | null>(null);
 
 interface AuthProviderProps {
 	children: React.ReactNode;
@@ -12,37 +25,45 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
 	const [authData, setAuthData] = useState<JwtPayload | null>(null);
+	const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 	const router = useRouter();
 
-	useLayoutEffect(() => {
-		const checkToken = () => {
-			const token = localStorage.getItem('token');
-
-			if (token) {
-				const decoded = jwtDecode(token);
-				if (decoded.exp && decoded?.exp * 1000 < Date.now()) {
-					logout();
-				}
-				setAuthData(decoded);
-			} else {
-			}
-		};
-
-		checkToken();
-
-		window.addEventListener('storage', checkToken);
-
-		return () => {
-			window.removeEventListener('storage', checkToken);
-		};
-	}, []);
-
 	const logout = () => {
+		setIsLoggedIn(false);
 		localStorage.removeItem('token');
 		router.push('/login');
 	};
 
-	return <AuthContext.Provider value={authData}>{children}</AuthContext.Provider>;
+	const login = () => {
+		setIsLoggedIn(true);
+	};
+
+	useEffect(() => {
+		const checkToken = () => {
+			const token = localStorage.getItem('token');
+
+			if (token) {
+				const decoded = jwtDecode<JwtPayload>(token);
+				if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+					logout();
+				}
+				console.log('check token', decoded);
+				setAuthData(decoded);
+			}
+		};
+
+		if (isLoggedIn) {
+			checkToken();
+		}
+	}, [isLoggedIn]);
+
+	if (!authData) {
+		return null;
+	}
+
+	return (
+		<AuthContext.Provider value={{ ...authData, login, logout }}>{children}</AuthContext.Provider>
+	);
 };
 
 export const useAuth = () => useContext(AuthContext);
