@@ -2,14 +2,43 @@
 import React, { FormEvent, useRef, useState } from "react";
 import Button from "../Button/Button";
 import Input from "../Input/Input";
+import { useRouter } from "next/navigation";
 
 const NewsForm = () => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [image, setImage] = useState<File | null>();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const router = useRouter();
 
   const handleSubmit = (event: FormEvent) => {
+    setIsSubmitting(true);
     event.preventDefault();
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("image", image as any);
+
+    try {
+      fetch("http://localhost:5000/news", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.statusCode === 201) {
+            alert("News created successfully");
+            router.push("/");
+          }
+        });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -34,7 +63,7 @@ const NewsForm = () => {
             onChange={(event) => setDescription(event.target.value)}
           />
         </label>
-        <label className="block mb-2">
+        {/* <label className="block mb-2">
           Image:
           <Input
             inputProps={{
@@ -44,7 +73,7 @@ const NewsForm = () => {
             }}
             onChange={(event) => setImage(event.target.files ? event.target.files[0] : null)}
           />
-        </label>
+        </label> */}
         <Button>Submit</Button>
       </form>
     </div>
