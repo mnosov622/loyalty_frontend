@@ -4,4 +4,5 @@ export type Task = {
   description: string;
   imagePath: string;
   dueDate: string;
+  isDeleted: boolean;
 };
