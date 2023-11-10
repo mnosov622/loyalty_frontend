@@ -7,9 +7,8 @@ import Link from "next/link";
 const CreateNewsPage: NextPage = () => {
   return (
     <>
-      <Link href="/" className="text-underline text-purple-800">
-        {" "}
-        Go back
+      <Link href="/tasks" className="text-underline text-purple-800">
+        &#8592; Go back
       </Link>
       <h1>Create News</h1>
       <NewsForm />

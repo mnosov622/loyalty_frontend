@@ -1,16 +1,23 @@
 "use client";
+
 import { Task } from "@/types/task";
-import React from "react";
-import Button from "../Button/Button";
+import { useState } from "react";
 import { mutate } from "swr";
+import Link from "next/link";
+import Button from "../Button/Button";
+import Input from "../Input/Input";
 import { useRouter } from "next/navigation";
-import { revalidatePath, revalidateTag } from "next/cache";
 
 interface TaskCardProps {
   task: Task;
+  editable?: boolean;
 }
 
-const TaskCard = ({ task }: TaskCardProps) => {
+const TaskCard = ({ task, editable = false }: TaskCardProps) => {
+  const [title, setTitle] = useState(task.title);
+  const [description, setDescription] = useState(task.description);
+  const router = useRouter();
+
   const handleDelete = async (id: number) => {
     await fetch(`http://localhost:5000/tasks/${id}`, {
       method: "DELETE",
@@ -18,6 +25,23 @@ const TaskCard = ({ task }: TaskCardProps) => {
       console.log("response", response);
       if (response.status === 200) {
         mutate("/tasks");
+        router.push("/tasks");
+      }
+    });
+  };
+
+  const handleEdit = async () => {
+    await fetch(`http://localhost:5000/tasks/${task.id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title, description }),
+    }).then((response) => {
+      console.log("response", response);
+      if (response.status === 201) {
+        mutate("/tasks");
+        router.push("/tasks");
       }
     });
   };
@@ -25,18 +49,53 @@ const TaskCard = ({ task }: TaskCardProps) => {
   return (
     <div key={task.id} className="bg-white shadow-lg rounded-lg p-6 mb-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-800">{task.title}</h2>
+        {editable ? (
+          <Input
+            inputProps={{
+              value: title,
+              style: { width: "80%" },
+            }}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        ) : (
+          <h2 className="text-2xl font-bold text-gray-800">{task.title}</h2>
+        )}
         {task.imagePath && (
           <img
-            className="w-24 h-24 object-cover"
-            src={`http://localhost:5000/${task.imagePath}`}
+            className="w-12 h-12 rounded-full"
+            src={`${process.env.NEXT_PUBLIC_BACKEND_API}/${task.imagePath}`}
             alt={task.title}
           />
         )}
       </div>
-      <p className="mt-4 text-gray-600">{task.description}</p>
+      {editable ? (
+        <Input
+          inputProps={{
+            value: description,
+            style: { marginTop: "20px", width: "80%" },
+          }}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      ) : (
+        <p className="mt-4 text-gray-600">{task.description}</p>
+      )}
       <p className="mt-2 text-gray-500">Due: {String(task.dueDate).slice(0, 10)}</p>
-      <Button onClick={() => handleDelete(task.id)}>Delete</Button>
+      <div className="flex justify-between">
+        <Button
+          onClick={() => handleDelete(task.id)}
+          buttonProps={{
+            className: "bg-red-500 hover:bg-red-700",
+          }}
+        >
+          Delete
+        </Button>
+        {editable && <Button onClick={handleEdit}>Save </Button>}
+        {!editable && (
+          <Link href={`/tasks/edit/${task.id}`}>
+            <Button> Edit ✏️</Button>
+          </Link>
+        )}
+      </div>
     </div>
   );
 };
