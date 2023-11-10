@@ -7,6 +7,7 @@ import CircleLoader from "../Loader/Loader";
 import { useRouter } from "next/navigation";
 import Input from "../Input/Input";
 import { useAuth } from "@/app/_providers/AppProvider";
+import { disconnect } from "process";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -63,6 +64,9 @@ const LoginForm = () => {
     if (data.statusCode === 200) {
       console.log("data", data);
       localStorage.setItem("token", data.token);
+      document.cookie = `token=${data.token}; path=/; expires=${new Date(
+        new Date().getTime() + 1000 * 60 * 60 * 24 * 30
+      ).toUTCString()}`;
       router.push("/");
       setLoading(false);
       login();
