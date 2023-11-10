@@ -14,9 +14,9 @@ const Header = () => {
 
   return (
     <header className="flex items-center justify-between items-center p-6">
-      {/* <Link href="/">
-        <img src="/path/to/logo.png" alt="Logo" className="h-12" />
-      </Link> */}
+      <Link href="/" className="mr-5">
+        <p className="text-bold">Home</p>
+      </Link>
 
       <p className="text-black font-bold">Welcome back, {authData?.firstName}</p>
       <Button buttonProps={{ className: "ml-auto mr-5" }} onClick={logout}>

@@ -18,7 +18,7 @@ const HomePage = async () => {
   // console.log("news", news);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className=" flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       {/* <NewsList /> */}
       <div className="max-w-md w-full space-y-8 shadow-lg p-6 rounded bg-white">
         <div>
@@ -27,9 +27,14 @@ const HomePage = async () => {
           </h2>
         </div>
 
-        <Link href="/news/create" className="flex justify-center">
-          <Button>Create News</Button>
-        </Link>
+        <div className="flex">
+          <Link href="/news/create" className="flex justify-center">
+            <Button>Create News</Button>
+          </Link>
+          <Link href="tasks" className="ml-5">
+            <Button>Tasks</Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

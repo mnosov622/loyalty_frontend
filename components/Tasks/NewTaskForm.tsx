@@ -3,18 +3,22 @@
 import React, { useState } from "react";
 import Input from "../Input/Input";
 import Button from "../Button/Button";
+import { useRouter } from "next/navigation";
 
 const NewTaskForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [dueDate, setDueDate] = useState("");
 
+  const router = useRouter();
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
+    formData.append("dueDate", dueDate);
     if (image) {
       formData.append("image", image);
     }
@@ -23,18 +27,19 @@ const NewTaskForm = () => {
       method: "POST",
       body: formData,
     }).then((response) => {
-      if (response.status === 200) {
-        alert("Task is created!");
+      if (response.status === 201) {
+        router.push("/tasks");
       }
     });
 
     setTitle("");
     setDescription("");
     setImage(null);
+    setDueDate("");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 w-1/2 bg-white rounded shadow-md">
+    <form onSubmit={handleSubmit} className="p-6 w-1/3 bg-white rounded shadow-md">
       <label className="block mb-2">
         Title:
         <Input
@@ -64,6 +69,19 @@ const NewTaskForm = () => {
           onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
         />
       </label>
+
+      <label className="block mb-2">
+        Due Date:
+        <Input
+          inputProps={{
+            type: "date",
+            value: dueDate,
+            required: true,
+          }}
+          onChange={(e) => setDueDate(e.target.value)}
+        />
+      </label>
+
       <Button>Create Task</Button>
     </form>
   );

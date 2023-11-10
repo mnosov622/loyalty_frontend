@@ -6,7 +6,7 @@ const CreateTaskPage = () => {
       <Link href="/tasks" className="text-purple-500">
         &larr; View All Tasks
       </Link>
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center">
         <NewTaskForm />
       </div>
     </>
