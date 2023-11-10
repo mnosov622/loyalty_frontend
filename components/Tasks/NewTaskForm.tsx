@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import Input from "../Input/Input";
 import Button from "../Button/Button";
 import { useRouter } from "next/navigation";
-import { mutate } from "swr";
-import { revalidatePath } from "next/cache";
 
 const NewTaskForm = () => {
   const [title, setTitle] = useState("");
@@ -30,7 +28,7 @@ const NewTaskForm = () => {
       body: formData,
     }).then((response) => {
       if (response.status === 201) {
-        mutate("/tasks");
+        router.refresh();
         router.push("/tasks");
       }
     });

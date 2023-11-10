@@ -2,7 +2,6 @@
 
 import { Task } from "@/types/task";
 import { useState } from "react";
-import { mutate } from "swr";
 import Link from "next/link";
 import Button from "../Button/Button";
 import Input from "../Input/Input";
@@ -19,15 +18,21 @@ const TaskCard = ({ task, editable = false }: TaskCardProps) => {
   const router = useRouter();
 
   const handleDelete = async (id: number) => {
-    await fetch(`http://localhost:5000/tasks/${id}`, {
-      method: "DELETE",
-    }).then((response) => {
-      console.log("response", response);
-      if (response.status === 200) {
-        mutate("/tasks");
-        router.push("/tasks");
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      try {
+        await fetch(`http://localhost:5000/tasks/${id}`, {
+          method: "DELETE",
+        }).then((response) => {
+          console.log("response", response);
+          if (response.status === 200) {
+            router.refresh();
+            router.push("/tasks");
+          }
+        });
+      } catch (e) {
+        console.log(e);
       }
-    });
+    }
   };
 
   const handleEdit = async () => {
@@ -40,7 +45,7 @@ const TaskCard = ({ task, editable = false }: TaskCardProps) => {
     }).then((response) => {
       console.log("response", response);
       if (response.status === 201) {
-        mutate("/tasks");
+        router.refresh();
         router.push("/tasks");
       }
     });

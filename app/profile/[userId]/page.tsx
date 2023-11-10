@@ -11,7 +11,7 @@ const Page = async ({ params }: any) => {
     .catch((err) => console.error(err));
 
   return (
-    <div>
+    <div className="shadow p-3">
       <h1>
         {userData?.firstName} {userData?.lastName}
       </h1>
