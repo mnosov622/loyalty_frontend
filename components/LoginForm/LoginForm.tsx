@@ -7,7 +7,6 @@ import CircleLoader from '../Loader/Loader';
 import { useRouter } from 'next/navigation';
 import Input from '../Input/Input';
 import { useAuth } from '@/app/_providers/AppProvider';
-import { disconnect } from 'process';
 
 const LoginForm = () => {
 	const [email, setEmail] = useState('');
@@ -18,6 +17,10 @@ const LoginForm = () => {
 
 	const router = useRouter();
 	const authData = useAuth();
+
+	if (!authData) {
+		return router.push('/login');
+	}
 
 	const { login } = authData;
 

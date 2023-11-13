@@ -1,5 +1,6 @@
 'use client';
 
+import LoginForm from '@/components/LoginForm/LoginForm';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -31,15 +32,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
 	const logout = () => {
 		router.push('/login');
-		setIsLoggedIn(false);
-		localStorage.removeItem('token');
-		document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 		fetch('http://localhost:5000/sessions/logout', {
 			method: 'POST',
 			headers: {
 				authorization: `Bearer ${localStorage.getItem('token')}`,
 			},
 		});
+		setIsLoggedIn(false);
+		localStorage.removeItem('token');
+		document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 	};
 
 	const login = () => {

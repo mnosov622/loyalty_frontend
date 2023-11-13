@@ -13,6 +13,10 @@ const Page = async ({ params }: any) => {
 		.then((res) => res.json())
 		.catch((err) => console.error(err));
 
+	if (userData.statusCode === 403) return <div>User not found</div>;
+
+	console.log('user', userData);
+
 	return (
 		<div className="shadow p-3">
 			<h1>

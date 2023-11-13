@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { getDecodedTokenAndValidate, checkIfHR } from '@/utils/utils';
 
 const TasksPage = async () => {
+	await getDecodedTokenAndValidate();
 	let userCanEdit = false;
 
 	const isUserHR = await checkIfHR();

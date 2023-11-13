@@ -8,7 +8,12 @@ import { useAuth } from '@/app/_providers/AppProvider';
 import Link from 'next/link';
 
 const Header = () => {
+	const router = useRouter();
 	const authData = useAuth();
+
+	if (!authData) {
+		return router.push('/login');
+	}
 
 	const { logout } = authData;
 
