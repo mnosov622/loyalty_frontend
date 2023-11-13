@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Input from '../Input/Input';
 import Button from '../Button/Button';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/_providers/AppProvider';
 
 const NewTaskForm = () => {
 	const [title, setTitle] = useState<string>('');
@@ -11,8 +12,9 @@ const NewTaskForm = () => {
 	const [image, setImage] = useState<File | null>(null);
 	const [dueDate, setDueDate] = useState<string>('');
 	const [error, setError] = useState<string>('');
-
 	const router = useRouter();
+	const userData = useAuth();
+
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		setError('');
 		event.preventDefault();
@@ -21,6 +23,8 @@ const NewTaskForm = () => {
 		formData.append('title', title);
 		formData.append('description', description);
 		formData.append('dueDate', dueDate);
+		formData.append('userId', userData?.userId as string);
+
 		if (image) {
 			formData.append('image', image);
 		}

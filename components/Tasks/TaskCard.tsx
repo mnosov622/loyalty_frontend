@@ -1,11 +1,12 @@
 'use client';
 
 import { Task } from '@/types/task';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Button from '../Button/Button';
 import Input from '../Input/Input';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/_providers/AppProvider';
 
 interface TaskCardProps {
 	task: Task;
@@ -19,9 +20,12 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 	const [image, setImage] = useState<File | null>(null);
 	const [dueDate, setDueDate] = useState<string>(String(task.dueDate).slice(0, 10));
 
-	const [taskButtonText, setTaskButtonText] = useState<string>('');
+	const [taskButtonText, setTaskButtonText] = useState<string>(task.status || 'Start Task');
 
 	const router = useRouter();
+	const userData = useAuth();
+
+	useEffect(() => {}, []);
 
 	const handleDelete = async (id: number) => {
 		if (window.confirm('Are you sure you want to delete this task?')) {
@@ -58,10 +62,32 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 	};
 
 	const handleStartTask = (task: Task) => {
+		const startDate = new Date().toISOString().slice(0, 10);
 		const body = {
 			taskId: task.id,
+			userId: userData?.userId,
+			status: 'In Progress',
+			authorId: task.userId,
+			endDate: task.dueDate.slice(0, 10),
+			startDate,
 		};
-		setTaskButtonText('Started');
+
+		try {
+			fetch(`http://localhost:5000/user-task`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(body),
+			}).then((response) => {
+				console.log('response', response);
+				if (response.status === 201) {
+					setTaskButtonText('In Progress');
+				}
+			});
+		} catch (e) {
+			console.log(e);
+		}
 	};
 
 	return (
@@ -146,7 +172,7 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 							onClick={() => handleStartTask(task)}
 						>
 							{' '}
-							Start Task
+							{taskButtonText}
 						</Button>
 					)}
 

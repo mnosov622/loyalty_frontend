@@ -17,6 +17,21 @@ const Page = async ({ params }: any) => {
 
 	if (task.statusCode === 403) return <div>Task not found</div>;
 
+	const userTask = await fetch(`http://localhost:5000/user-task/${params.id}`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
+		},
+	})
+		.then((res) => res.json())
+		.catch((err) => console.error(err));
+
+	const taskWithStatus = {
+		...task,
+		status: userTask.status,
+	};
+
 	return (
 		<>
 			<Link
@@ -25,7 +40,7 @@ const Page = async ({ params }: any) => {
 			>
 				&#8592; Go back
 			</Link>
-			<TaskCard task={task} />
+			<TaskCard task={taskWithStatus} />
 		</>
 	);
 };

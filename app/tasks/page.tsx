@@ -19,6 +19,22 @@ const TasksPage = async () => {
 		.then((data) => data.sort((a: Task, b: Task) => a.id - b.id))
 		.catch((error) => console.error('Error:', error));
 
+	const userTask = await fetch('http://localhost:5000/user-task', {
+		cache: 'no-cache',
+	})
+		.then((response) => response.json())
+		.catch((error) => console.error('Error:', error));
+
+	const tasksWithStatus = tasks.map((task: Task) => {
+		const matchingUserTask = userTask.find((ut: any) => ut.taskId === task.id);
+		return {
+			...task,
+			status: matchingUserTask ? matchingUserTask.status : 'Start Task',
+		};
+	});
+
+	console.log('user', userTask);
+
 	const decodedToken = await getDecodedTokenAndValidate();
 
 	if (!tasks || tasks.length === 0)
@@ -28,7 +44,7 @@ const TasksPage = async () => {
 				{isUserHR && (
 					<Link
 						href="tasks/create"
-						className="block mt-3"
+						className="block mt-3 mb-3"
 					>
 						<Button>Create new Task</Button>
 					</Link>
@@ -39,11 +55,17 @@ const TasksPage = async () => {
 		<div className="container mx-auto px-4 w-[50%]">
 			{typeof decodedToken !== 'boolean' && decodedToken.roles.includes('admin') && (
 				<Link href="tasks/create">
-					<Button>Create new Task</Button>
+					<Button
+						buttonProps={{
+							className: 'mb-3',
+						}}
+					>
+						Create new Task
+					</Button>
 				</Link>
 			)}
 
-			{tasks?.map((task: Task) => (
+			{tasksWithStatus?.map((task: Task) => (
 				<TaskCard
 					task={task}
 					key={task.id}

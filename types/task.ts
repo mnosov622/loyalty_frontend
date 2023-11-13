@@ -1,8 +1,10 @@
 export type Task = {
-  id: number;
-  title: string;
-  description: string;
-  imagePath: string;
-  dueDate: string;
-  isDeleted: boolean;
+	id: number;
+	userId: number;
+	title: string;
+	description: string;
+	imagePath: string;
+	dueDate: string;
+	isDeleted: boolean;
+	status: string;
 };
