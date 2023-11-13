@@ -19,8 +19,11 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 	const [description, setDescription] = useState<string>(task.description);
 	const [image, setImage] = useState<File | null>(null);
 	const [dueDate, setDueDate] = useState<string>(String(task.dueDate).slice(0, 10));
+	const [link, setLink] = useState<string>('');
 
-	const [taskButtonText, setTaskButtonText] = useState<string>(task.status || 'Start Task');
+	const [taskButtonText, setTaskButtonText] = useState<string>(
+		(task.status === 'In Progress' && 'Finish Task') || 'Start Task'
+	);
 
 	const router = useRouter();
 	const userData = useAuth();
@@ -82,7 +85,8 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 			}).then((response) => {
 				console.log('response', response);
 				if (response.status === 201) {
-					setTaskButtonText('In Progress');
+					setTaskButtonText('Finish');
+					router.refresh();
 				}
 			});
 		} catch (e) {
@@ -93,8 +97,14 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 	return (
 		<div
 			key={task.id}
-			className="bg-white shadow-lg rounded-lg p-6 mb-6 flex"
+			className="bg-white shadow-lg rounded-lg p-6 mb-6 flex relative"
 		>
+			{task.status === 'In Progress' && (
+				<div className="bg-blue-200 text-dark-700 p-1 text-sm rounded-md mb-4 absolute top-0 right-0">
+					{task.status}
+				</div>
+			)}
+
 			<div className="flex flex-col">
 				{task.imagePath && (
 					<div className="w-64 h-auto">
@@ -171,7 +181,6 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 							}}
 							onClick={() => handleStartTask(task)}
 						>
-							{' '}
 							{taskButtonText}
 						</Button>
 					)}
@@ -212,6 +221,25 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 						</svg>
 					)}
 				</div>
+				{task.status === 'In Progress' && (
+					<div className="mt-4 w-full">
+						<label
+							htmlFor="link"
+							className="block text-sm font-medium text-gray-700"
+						>
+							Upload Link
+						</label>
+						<Input
+							inputProps={{
+								type: 'link',
+								name: 'link',
+								id: 'link',
+								placeholder: 'Enter link here',
+							}}
+							onChange={(e) => setLink(e.target.value)}
+						/>
+					</div>
+				)}
 			</div>
 		</div>
 	);
