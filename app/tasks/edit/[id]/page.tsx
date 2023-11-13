@@ -17,7 +17,7 @@ const Page = async ({ params }: any) => {
 		.catch((err) => console.error(err));
 
 	return (
-		<div className="w-1/3 mx-auto">
+		<div className="w-[90%] mx-auto">
 			<Link
 				href="/tasks"
 				className="text-underline text-purple-800"

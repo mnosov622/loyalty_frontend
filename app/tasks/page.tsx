@@ -16,6 +16,7 @@ const TasksPage = async () => {
 	})
 		.then((response) => response.json())
 		.then((data) => data.filter((task: Task) => !task.isDeleted))
+		.then((data) => data.sort((a: Task, b: Task) => a.id - b.id))
 		.catch((error) => console.error('Error:', error));
 
 	const decodedToken = await getDecodedTokenAndValidate();
