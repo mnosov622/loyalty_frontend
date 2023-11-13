@@ -16,14 +16,14 @@ export const getDecodedTokenAndValidate = async (): Promise<JwtPayload | boolean
 	return decodedToken;
 };
 
-export const checkIfAdmin = async (): Promise<boolean> => {
-	const result = await getDecodedTokenAndValidate();
+export const checkIfHR = async (): Promise<boolean> => {
+	const token = await getDecodedTokenAndValidate();
 
-	if (typeof result === 'boolean') {
+	if (typeof token === 'boolean') {
 		return false;
 	}
 
-	const decodedToken: JwtPayload = result;
-	if (!decodedToken.roles.includes('admin')) return false;
+	const decodedToken: JwtPayload = token;
+	if (!decodedToken.roles.includes('hr')) return false;
 	return true;
 };

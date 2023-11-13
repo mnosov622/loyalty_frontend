@@ -2,16 +2,13 @@ import Button from '@/components/Button/Button';
 import TaskCard from '@/components/Tasks/TaskCard';
 import { Task } from '@/types/task';
 import Link from 'next/link';
-import { cookies } from 'next/headers';
-import { jwtDecode } from 'jwt-decode';
-import { JwtPayload } from '@/types/jwtPayload';
-import { getDecodedTokenAndValidate, checkIfAdmin } from '@/utils/utils';
+import { getDecodedTokenAndValidate, checkIfHR } from '@/utils/utils';
 
 const TasksPage = async () => {
 	let userCanEdit = false;
 
-	const user = await checkIfAdmin();
-	if (user) userCanEdit = true;
+	const isUserHR = await checkIfHR();
+	if (isUserHR) userCanEdit = true;
 
 	const tasks = await fetch('http://localhost:5000/tasks', {
 		cache: 'no-cache',
@@ -26,12 +23,14 @@ const TasksPage = async () => {
 		return (
 			<div className="w-[50%] mx-auto text-center">
 				<p className="text-center text-lg">There are no tasks yet</p>
-				<Link
-					href="tasks/create"
-					className="block mt-3"
-				>
-					<Button>Create new Task</Button>
-				</Link>
+				{isUserHR && (
+					<Link
+						href="tasks/create"
+						className="block mt-3"
+					>
+						<Button>Create new Task</Button>
+					</Link>
+				)}
 			</div>
 		);
 	return (

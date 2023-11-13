@@ -14,8 +14,10 @@ interface TaskCardProps {
 }
 
 const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps) => {
-	const [title, setTitle] = useState(task.title);
-	const [description, setDescription] = useState(task.description);
+	const [title, setTitle] = useState<string>(task.title);
+	const [description, setDescription] = useState<string>(task.description);
+	const [taskButtonText, setTaskButtonText] = useState<string>('');
+
 	const router = useRouter();
 
 	const handleDelete = async (id: number) => {
@@ -50,6 +52,13 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 				router.push('/tasks');
 			}
 		});
+	};
+
+	const handleStartTask = (task: Task) => {
+		const body = {
+			taskId: task.id,
+		};
+		setTaskButtonText('Started');
 	};
 
 	return (
@@ -107,6 +116,15 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 						<Button> Edit ✏️</Button>
 					</Link>
 				)}
+				<Button
+					buttonProps={{
+						className: 'mt-3',
+					}}
+					onClick={() => handleStartTask(task)}
+				>
+					{' '}
+					Start Task
+				</Button>
 			</div>
 		</div>
 	);

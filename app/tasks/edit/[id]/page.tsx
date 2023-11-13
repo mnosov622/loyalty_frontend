@@ -1,10 +1,10 @@
 import TaskCard from '@/components/Tasks/TaskCard';
-import { getDecodedTokenAndValidate, checkIfAdmin } from '@/utils/utils';
+import { getDecodedTokenAndValidate, checkIfHR } from '@/utils/utils';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 const Page = async ({ params }: any) => {
-	const user = await checkIfAdmin();
+	const user = await checkIfHR();
 	if (!user) return redirect('/tasks');
 
 	const taskData = await fetch(`http://localhost:5000/tasks/${params.id}`, {
