@@ -1,11 +1,14 @@
+import { getDecodedTokenAndValidate, getToken } from '@/utils/utils';
+
 const Page = async ({ params }: any) => {
+	await getDecodedTokenAndValidate();
+	const token = getToken();
 	const userData = await fetch(`http://localhost:5000/users/${params.userId}`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
 		},
-
-		credentials: 'include',
 	})
 		.then((res) => res.json())
 		.catch((err) => console.error(err));

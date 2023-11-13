@@ -34,6 +34,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		setIsLoggedIn(false);
 		localStorage.removeItem('token');
 		document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+		fetch('http://localhost:5000/sessions/logout', {
+			method: 'POST',
+			headers: {
+				authorization: `Bearer ${localStorage.getItem('token')}`,
+			},
+		});
 	};
 
 	const login = () => {
