@@ -101,7 +101,14 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 							onChange={(e) => setTitle(e.target.value)}
 						/>
 					) : (
-						<h2 className="text-2xl font-bold text-gray-800">{task.title}</h2>
+						<Link
+							href={`/tasks/${task.id}`}
+							className="hover:text-purple-500"
+						>
+							<h2 className="text-2xl font-bold text-gray-800 hover:text-blue-500 transition duration-100">
+								{task.title}
+							</h2>
+						</Link>
 					)}
 				</div>
 				{editable ? (
@@ -112,7 +119,11 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 						rows={5}
 					/>
 				) : (
-					<p className="mt-4 text-gray-600 line-clamp-3">{task.description}</p>
+					<Link href={`/tasks/${task.id}`}>
+						<p className="mt-4 text-gray-600 line-clamp-3 hover:text-blue-500 transition duration-100">
+							{task.description}
+						</p>
+					</Link>
 				)}
 				{editable ? (
 					<Input
