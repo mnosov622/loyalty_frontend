@@ -15,3 +15,15 @@ export const getDecodedTokenAndValidate = async (): Promise<JwtPayload | boolean
 
 	return decodedToken;
 };
+
+export const checkIfAdmin = async (): Promise<boolean> => {
+	const result = await getDecodedTokenAndValidate();
+
+	if (typeof result === 'boolean') {
+		return false;
+	}
+
+	const decodedToken: JwtPayload = result;
+	if (!decodedToken.roles.includes('admin')) return false;
+	return true;
+};

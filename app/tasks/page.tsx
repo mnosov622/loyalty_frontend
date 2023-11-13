@@ -5,9 +5,14 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { jwtDecode } from 'jwt-decode';
 import { JwtPayload } from '@/types/jwtPayload';
-import { getDecodedTokenAndValidate } from '@/utils/utils';
+import { getDecodedTokenAndValidate, checkIfAdmin } from '@/utils/utils';
 
 const TasksPage = async () => {
+	let userCanEdit = false;
+
+	const user = await checkIfAdmin();
+	if (user) userCanEdit = true;
+
 	const tasks = await fetch('http://localhost:5000/tasks', {
 		cache: 'no-cache',
 	})
@@ -17,7 +22,6 @@ const TasksPage = async () => {
 
 	const decodedToken = await getDecodedTokenAndValidate();
 
-	console.log('decoded', decodedToken);
 	if (!tasks || tasks.length === 0)
 		return (
 			<div className="w-[50%] mx-auto text-center">
@@ -42,6 +46,7 @@ const TasksPage = async () => {
 				<TaskCard
 					task={task}
 					key={task.id}
+					userCanEdit={userCanEdit}
 				/>
 			))}
 		</div>
