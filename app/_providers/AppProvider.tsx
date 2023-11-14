@@ -11,6 +11,7 @@ interface JwtPayload {
 	exp: number;
 	email: string;
 	firstName: string;
+	lastName: string;
 }
 
 interface AuthContextData extends JwtPayload {

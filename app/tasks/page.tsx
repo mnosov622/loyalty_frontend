@@ -4,7 +4,6 @@ import { Task } from '@/types/task';
 import Link from 'next/link';
 import { getDecodedTokenAndValidate, checkIfHR } from '@/utils/utils';
 import { JwtPayload } from '@/types/jwtPayload';
-import TaskTabs from '@/components/TaskTabs/TaskTabs';
 
 const TasksPage = async () => {
 	await getDecodedTokenAndValidate();
@@ -28,7 +27,7 @@ const TasksPage = async () => {
 		.catch((error) => console.error('Error:', error));
 	const token = await getDecodedTokenAndValidate();
 
-	const tasksWithStatus = tasks.map((task: Task) => {
+	const tasksWithStatus = tasks?.map((task: Task) => {
 		const matchingUserTask = userTask.find((ut: any) => {
 			if (typeof token === 'object' && token !== null && 'userId' in token) {
 				return ut.taskId === task.id && ut.userId === (token as JwtPayload).userId;
@@ -38,8 +37,11 @@ const TasksPage = async () => {
 		return {
 			...task,
 			status: matchingUserTask ? matchingUserTask.status : 'Start Task',
+			comment: matchingUserTask ? matchingUserTask.comment : '',
 		};
 	});
+
+	const waitingApprovalTasks = userTask?.filter((task: Task) => task.status === 'Waiting Approval');
 
 	if (!tasks || tasks.length === 0)
 		return (
@@ -55,6 +57,7 @@ const TasksPage = async () => {
 				)}
 			</div>
 		);
+
 	return (
 		<div className="container mx-auto px-4 w-[50%]">
 			<div className="flex">
@@ -69,7 +72,14 @@ const TasksPage = async () => {
 						</Button>
 					</Link>
 				)}
-				{/* {isUserHR && <TaskTabs />} */}
+				{isUserHR && waitingApprovalTasks.length > 0 && (
+					<Link
+						href="/tasks/approve"
+						className="ml-auto"
+					>
+						<Button>Approve Tasks</Button>
+					</Link>
+				)}
 			</div>
 
 			{tasksWithStatus?.map((task: Task) => (

@@ -12,15 +12,23 @@ interface TaskCardProps {
 	task: Task;
 	editable?: boolean;
 	userCanEdit?: boolean;
+	toBeApproved?: boolean;
 }
 
-const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps) => {
+const TaskCard = ({
+	task,
+	editable = false,
+	userCanEdit = false,
+	toBeApproved = false,
+}: TaskCardProps) => {
 	const [title, setTitle] = useState<string>(task.title);
 	const [description, setDescription] = useState<string>(task.description);
 	const [image, setImage] = useState<File | null>(null);
 	const [dueDate, setDueDate] = useState<string>(String(task.dueDate).slice(0, 10));
 	const [link, setLink] = useState<string>('');
 	const [error, setError] = useState<string>('');
+	const [showNotes, setShowNotes] = useState<boolean>(false);
+	const [notes, setNotes] = useState<string>('');
 
 	const [taskButtonText, setTaskButtonText] = useState<string>(
 		(task.status === 'In Progress' ? 'Complete Task' : task.status) || 'Start Task'
@@ -29,10 +37,10 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 	const router = useRouter();
 	const userData = useAuth();
 
-	const handleDelete = async (id: number) => {
+	const handleDelete = (id: number) => {
 		if (window.confirm('Are you sure you want to delete this task?')) {
 			try {
-				await fetch(`http://localhost:5000/tasks/${id}`, {
+				fetch(`http://localhost:5000/tasks/${id}`, {
 					method: 'DELETE',
 				}).then((response) => {
 					console.log('response', response);
@@ -63,15 +71,17 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 		});
 	};
 
-	const handleTaskAction = (task: Task) => {
+	const handleTaskAction = (task: Task, action?: string) => {
+		setShowNotes(false);
 		setError('');
-
 		console.log('task', task);
 		if (task.status === 'Start Task') {
 			const startDate = new Date().toISOString().slice(0, 10);
 			const body = {
 				taskId: task.id,
 				userId: userData?.userId,
+				userEmail: userData?.email,
+				userName: userData?.firstName + ' ' + userData?.lastName,
 				status: 'In Progress',
 				authorId: task.userId,
 				endDate: task.dueDate.slice(0, 10),
@@ -101,12 +111,12 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 			if (!link.trim()) return setError('Please enter a link');
 
 			const endDate = new Date().toISOString().slice(0, 10);
-			console.log('task', task);
 			const body = {
 				status: 'Waiting Approval',
 				endDate,
 				link,
 				taskId: task.id,
+				userId: userData?.userId,
 			};
 
 			try {
@@ -127,7 +137,86 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 				console.log(e);
 			}
 		}
+
+		if (task.status === 'Waiting Approval' && action === 'Approve') {
+			const body = {
+				status: 'Approved',
+				taskId: task.taskId,
+				userId: task.userId,
+			};
+
+			try {
+				fetch(`http://localhost:5000/user-task/approve`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(body),
+				}).then((response) => {
+					console.log('response', response);
+					if (response.status === 201) {
+						setTaskButtonText('Approved');
+						router.refresh();
+					}
+				});
+			} catch (e) {
+				console.log(e);
+			}
+		}
+
+		if (task.status === 'Waiting Approval' && action === 'Reject') {
+			const body = {
+				status: 'Rejected',
+				taskId: task.taskId,
+				userId: task?.userId,
+				comment: notes,
+			};
+			setShowNotes(true);
+
+			if (!notes.trim()) return setError('Please enter a reason for rejection');
+
+			try {
+				fetch(`http://localhost:5000/user-task/reject`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(body),
+				}).then((response) => {
+					console.log('response', response);
+					if (response.status === 201) {
+						router.refresh();
+					}
+				});
+			} catch (e) {
+				console.log(e);
+			}
+		}
 	};
+
+	function renderButton(task: Task, toBeApproved: boolean) {
+		if (
+			!editable &&
+			task.status !== 'Waiting Approval' &&
+			task.status !== 'Rejected' &&
+			task.status !== 'Approved' &&
+			!toBeApproved
+		) {
+			return (
+				<Button
+					buttonProps={{
+						className: `mt-4 mr-2 ${
+							taskButtonText === 'Waiting Approval' && 'disabled:opacity-50'
+						}`,
+					}}
+					onClick={() => handleTaskAction(task)}
+				>
+					{taskButtonText}
+				</Button>
+			);
+		}
+		return null;
+	}
 
 	return (
 		<div
@@ -202,21 +291,32 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 						onChange={(e) => setDueDate(e.target.value)}
 					/>
 				) : (
-					<p className="mt-2 text-gray-500">Due: {String(task.dueDate).slice(0, 10)}</p>
+					<p className="mt-2 text-gray-500">
+						Due: {String(task.dueDate || task.endDate).slice(0, 10)}
+					</p>
 				)}
-				<div className="flex items-center justify-between">
-					{!editable && task.status !== 'Waiting Approval' && (
-						<Button
-							buttonProps={{
-								className: `mt-4 mr-2 ${
-									taskButtonText === 'Waiting Approval' && 'disabled:opacity-50'
-								}`,
-							}}
-							onClick={() => handleTaskAction(task)}
+				{task?.link && toBeApproved && (
+					<p className="mt-2 mb-0">
+						Link:
+						<Link
+							href={`${task.link}`}
+							target="_blank"
+							className="hover:text-blue-500 transition duration-100 text-blue-800"
 						>
-							{taskButtonText}
-						</Button>
-					)}
+							{task.link}
+						</Link>
+					</p>
+				)}
+
+				{task.userName && task.userEmail && toBeApproved && (
+					<>
+						<p className="mt-2 mb-0">Submitted by: {task.userName}</p>
+						<p>Email: {task.userEmail}</p>
+					</>
+				)}
+
+				<div className="flex items-center justify-between">
+					{renderButton(task, toBeApproved)}
 
 					{editable && <Button onClick={handleEdit}>Save </Button>}
 					{!editable && userCanEdit && (
@@ -242,7 +342,19 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 						</Button>
 					)}
 
-					{!editable && (
+					{task.comment && (
+						<div className="mt-4">
+							<label
+								htmlFor="notes"
+								className="block text-sm font-medium text-gray-700"
+							>
+								Reject Reason
+							</label>
+							<p>{task.comment}</p>
+						</div>
+					)}
+
+					{!editable && !toBeApproved && (
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="20"
@@ -273,6 +385,44 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 							onChange={(e) => setLink(e.target.value)}
 						/>
 						{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+					</div>
+				)}
+
+				{toBeApproved && (
+					<div className="flex items-center">
+						<Button
+							buttonProps={{
+								className: '!bg-green-700 hover:!bg-green-900 mt-4 mr-2',
+							}}
+							onClick={() => handleTaskAction(task, 'Approve')}
+						>
+							Approve
+						</Button>
+						<Button
+							buttonProps={{
+								className: 'bg-red-500 hover:bg-red-700 mt-4',
+							}}
+							onClick={() => handleTaskAction(task, 'Reject')}
+						>
+							Reject
+						</Button>
+					</div>
+				)}
+				{showNotes && (
+					<div className="mt-4">
+						<label
+							htmlFor="notes"
+							className="block text-sm font-medium text-gray-700"
+						>
+							Reject Reason
+						</label>
+						<Input
+							inputProps={{
+								value: notes,
+								className: '',
+							}}
+							onChange={(e) => setNotes(e.target.value)}
+						/>
 					</div>
 				)}
 			</div>

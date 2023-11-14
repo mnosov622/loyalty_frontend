@@ -34,7 +34,6 @@ const Page = async ({ params }: any) => {
 		)
 			.then((res) => res.json())
 			.catch((err) => console.error(err));
-		console.log('taskWithStatus', userTask);
 		taskWithStatus = {
 			...task,
 			status: userTask.status,
