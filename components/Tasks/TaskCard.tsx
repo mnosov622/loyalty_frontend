@@ -20,15 +20,14 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 	const [image, setImage] = useState<File | null>(null);
 	const [dueDate, setDueDate] = useState<string>(String(task.dueDate).slice(0, 10));
 	const [link, setLink] = useState<string>('');
+	const [error, setError] = useState<string>('');
 
 	const [taskButtonText, setTaskButtonText] = useState<string>(
-		(task.status === 'In Progress' && 'Finish Task') || 'Start Task'
+		(task.status === 'In Progress' ? 'Complete Task' : task.status) || 'Start Task'
 	);
 
 	const router = useRouter();
 	const userData = useAuth();
-
-	useEffect(() => {}, []);
 
 	const handleDelete = async (id: number) => {
 		if (window.confirm('Are you sure you want to delete this task?')) {
@@ -64,33 +63,69 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 		});
 	};
 
-	const handleStartTask = (task: Task) => {
-		const startDate = new Date().toISOString().slice(0, 10);
-		const body = {
-			taskId: task.id,
-			userId: userData?.userId,
-			status: 'In Progress',
-			authorId: task.userId,
-			endDate: task.dueDate.slice(0, 10),
-			startDate,
-		};
+	const handleTaskAction = (task: Task) => {
+		setError('');
 
-		try {
-			fetch(`http://localhost:5000/user-task`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(body),
-			}).then((response) => {
-				console.log('response', response);
-				if (response.status === 201) {
-					setTaskButtonText('Finish');
-					router.refresh();
-				}
-			});
-		} catch (e) {
-			console.log(e);
+		console.log('task', task);
+		if (task.status === 'Start Task') {
+			const startDate = new Date().toISOString().slice(0, 10);
+			const body = {
+				taskId: task.id,
+				userId: userData?.userId,
+				status: 'In Progress',
+				authorId: task.userId,
+				endDate: task.dueDate.slice(0, 10),
+				startDate,
+			};
+
+			try {
+				fetch(`http://localhost:5000/user-task`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(body),
+				}).then((response) => {
+					console.log('response', response);
+					if (response.status === 201) {
+						setTaskButtonText('Complete Task');
+						router.refresh();
+					}
+				});
+			} catch (e) {
+				console.log(e);
+			}
+		}
+
+		if (task.status === 'In Progress') {
+			if (!link.trim()) return setError('Please enter a link');
+
+			const endDate = new Date().toISOString().slice(0, 10);
+			console.log('task', task);
+			const body = {
+				status: 'Waiting Approval',
+				endDate,
+				link,
+				taskId: task.id,
+			};
+
+			try {
+				fetch(`http://localhost:5000/user-task/complete`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(body),
+				}).then((response) => {
+					console.log('response', response);
+					if (response.status === 201) {
+						setTaskButtonText('Waiting Approval');
+						router.refresh();
+					}
+				});
+			} catch (e) {
+				console.log(e);
+			}
 		}
 	};
 
@@ -99,8 +134,12 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 			key={task.id}
 			className="bg-white shadow-lg rounded-lg p-6 mb-6 flex relative"
 		>
-			{task.status === 'In Progress' && (
-				<div className="bg-blue-200 text-dark-700 p-1 text-sm rounded-md mb-4 absolute top-0 right-0">
+			{task.status && task.status !== 'Start Task' && (
+				<div
+					className={`bg-blue-200 text-dark-700 p-1 text-sm rounded-md mb-4 absolute top-0 right-0 ${
+						task.status === 'Approved' && 'bg-green-300'
+					}`}
+				>
 					{task.status}
 				</div>
 			)}
@@ -115,15 +154,6 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 						/>
 					</div>
 				)}
-
-				{/* {editable && (
-					<Input
-						inputProps={{
-							type: 'file',
-						}}
-						onChange={handleImageChange}
-					/>
-				)} */}
 			</div>
 
 			<div className="flex flex-col justify-between flex-grow ml-4">
@@ -174,12 +204,14 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 					<p className="mt-2 text-gray-500">Due: {String(task.dueDate).slice(0, 10)}</p>
 				)}
 				<div className="flex items-center justify-between">
-					{!editable && (
+					{!editable && task.status !== 'Waiting Approval' && (
 						<Button
 							buttonProps={{
-								className: 'mt-4',
+								className: `mt-4 mr-2 ${
+									taskButtonText === 'Waiting Approval' && 'disabled:opacity-50'
+								}`,
 							}}
-							onClick={() => handleStartTask(task)}
+							onClick={() => handleTaskAction(task)}
 						>
 							{taskButtonText}
 						</Button>
@@ -190,7 +222,7 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 						<Link href={`/tasks/edit/${task.id}`}>
 							<Button
 								buttonProps={{
-									className: 'mt-4',
+									className: 'mt-4 mr-2',
 								}}
 							>
 								{' '}
@@ -208,6 +240,7 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 							Delete
 						</Button>
 					)}
+
 					{!editable && (
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -215,7 +248,7 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 							height="20"
 							viewBox="0 0 24 24"
 							fill="red"
-							className="mt-4 cursor-pointer"
+							className="mt-4 cursor-pointer ml-auto"
 						>
 							<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
 						</svg>
@@ -238,6 +271,7 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 							}}
 							onChange={(e) => setLink(e.target.value)}
 						/>
+						{error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 					</div>
 				)}
 			</div>

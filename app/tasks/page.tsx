@@ -3,6 +3,8 @@ import TaskCard from '@/components/Tasks/TaskCard';
 import { Task } from '@/types/task';
 import Link from 'next/link';
 import { getDecodedTokenAndValidate, checkIfHR } from '@/utils/utils';
+import { JwtPayload } from '@/types/jwtPayload';
+import TaskTabs from '@/components/TaskTabs/TaskTabs';
 
 const TasksPage = async () => {
 	await getDecodedTokenAndValidate();
@@ -24,18 +26,20 @@ const TasksPage = async () => {
 	})
 		.then((response) => response.json())
 		.catch((error) => console.error('Error:', error));
+	const token = await getDecodedTokenAndValidate();
 
 	const tasksWithStatus = tasks.map((task: Task) => {
-		const matchingUserTask = userTask.find((ut: any) => ut.taskId === task.id);
+		const matchingUserTask = userTask.find((ut: any) => {
+			if (typeof token === 'object' && token !== null && 'userId' in token) {
+				return ut.taskId === task.id && ut.userId === (token as JwtPayload).userId;
+			}
+			return false;
+		});
 		return {
 			...task,
 			status: matchingUserTask ? matchingUserTask.status : 'Start Task',
 		};
 	});
-
-	console.log('user', userTask);
-
-	const decodedToken = await getDecodedTokenAndValidate();
 
 	if (!tasks || tasks.length === 0)
 		return (
@@ -53,17 +57,20 @@ const TasksPage = async () => {
 		);
 	return (
 		<div className="container mx-auto px-4 w-[50%]">
-			{typeof decodedToken !== 'boolean' && decodedToken.roles.includes('admin') && (
-				<Link href="tasks/create">
-					<Button
-						buttonProps={{
-							className: 'mb-3',
-						}}
-					>
-						Create new Task
-					</Button>
-				</Link>
-			)}
+			<div className="flex">
+				{typeof token !== 'boolean' && token.roles.includes('admin') && (
+					<Link href="tasks/create">
+						<Button
+							buttonProps={{
+								className: 'mb-3',
+							}}
+						>
+							Create new Task
+						</Button>
+					</Link>
+				)}
+				{/* {isUserHR && <TaskTabs />} */}
+			</div>
 
 			{tasksWithStatus?.map((task: Task) => (
 				<TaskCard
