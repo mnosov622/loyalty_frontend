@@ -137,7 +137,8 @@ const TaskCard = ({ task, editable = false, userCanEdit = false }: TaskCardProps
 			{task.status && task.status !== 'Start Task' && (
 				<div
 					className={`bg-blue-200 text-dark-700 p-1 text-sm rounded-md mb-4 absolute top-0 right-0 ${
-						task.status === 'Approved' && 'bg-green-300'
+						(task.status === 'Approved' && 'bg-green-300',
+						task.status === 'Rejected' && 'bg-red-300')
 					}`}
 				>
 					{task.status}
