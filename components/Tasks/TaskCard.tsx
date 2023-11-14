@@ -218,6 +218,7 @@ const TaskCard = ({
 		return null;
 	}
 
+	console.log('task', task.status);
 	return (
 		<div
 			key={task.id}
@@ -226,8 +227,15 @@ const TaskCard = ({
 			{task.status && task.status !== 'Start Task' && (
 				<div
 					className={`bg-blue-200 text-dark-700 p-1 text-sm rounded-md mb-4 absolute top-0 right-0 ${
-						(task.status === 'Approved' && 'bg-green-300',
-						task.status === 'Rejected' && 'bg-red-300')
+						task.status === 'Approved'
+							? 'bg-green-300'
+							: task.status === 'Rejected'
+							? 'bg-red-300'
+							: task.status === 'In Progress'
+							? 'bg-blue-300'
+							: task.status === 'Waiting Approval'
+							? 'bg-yellow-300'
+							: ''
 					}`}
 				>
 					{task.status}

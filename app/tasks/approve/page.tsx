@@ -2,6 +2,7 @@ import TaskCard from '@/components/Tasks/TaskCard';
 import { JwtPayload } from '@/types/jwtPayload';
 import { Task } from '@/types/task';
 import { checkIfHR, getDecodedTokenAndValidate, getToken } from '@/utils/utils';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 const Page = async () => {
@@ -43,6 +44,12 @@ const Page = async () => {
 		<div className="container mx-auto px-4 w-[50%]">
 			<div className="flex">
 				<div className="w-full">
+					<Link
+						href="/tasks"
+						className="text-underline text-purple-800"
+					>
+						&#8592; Go back
+					</Link>
 					<h1 className="text-2xl font-bold">Tasks Submissions</h1>
 					<div className="mt-4">
 						{combinedTasks &&
